@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gen Z Dictionary & Translator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 0;
+            margin-bottom: 2rem;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .theme-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            background: #ccc;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .theme-switch.dark {
+            background: #667eea;
+        }
+
+        .theme-slider {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .theme-switch.dark .theme-slider {
+            transform: translateX(30px);
+        }
+
+        .theme-icon {
+            font-size: 1.2rem;
+        }
+
+        /* Dark theme styles */
+        body.dark-theme {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+        }
+
+        .dark-theme header {
+            background: rgba(30, 30, 50, 0.95);
+        }
+
+        .dark-theme .logo {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .dark-theme .nav-tab {
+            color: #e0e0e0;
+        }
+
+        .dark-theme .nav-tab:hover:not(.active) {
+            border-color: #667eea;
+        }
+
+        .dark-theme .translator-section,
+        .dark-theme .dictionary-section {
+            background: rgba(30, 30, 50, 0.95);
+            color: #e0e0e0;
+        }
+
+        .dark-theme .translator-header h2,
+        .dark-theme .dictionary-section h2 {
+            color: #e0e0e0;
+        }
+
+        .dark-theme .translator-header p {
+            color: #b0b0b0;
+        }
+
+        .dark-theme .input-box {
+            background: rgba(40, 40, 60, 0.8);
+        }
+
+        .dark-theme .input-label {
+            color: #b0b0b0;
+        }
+
+        .dark-theme .input-area {
+            background: rgba(50, 50, 70, 0.9);
+            border-color: #555;
+            color: #e0e0e0;
+        }
+
+        .dark-theme .input-area:focus {
+            border-color: #667eea;
+        }
+
+        .dark-theme .input-area::placeholder {
+            color: #888;
+        }
+
+        .dark-theme .complexity-btn {
+            background: rgba(50, 50, 70, 0.9);
+            color: #e0e0e0;
+            border-color: #667eea;
+        }
+
+        .dark-theme .search-bar {
+            background: rgba(50, 50, 70, 0.9);
+            border-color: #555;
+            color: #e0e0e0;
+        }
+
+        .dark-theme .search-bar:focus {
+            border-color: #667eea;
+        }
+
+        .dark-theme .search-bar::placeholder {
+            color: #888;
+        }
+
+        .dark-theme .category {
+            background: linear-gradient(135deg, rgba(60, 60, 80, 0.8), rgba(40, 40, 60, 0.8));
+            color: #e0e0e0;
+        }
+
+        .dark-theme .term-card {
+            background: rgba(40, 40, 60, 0.9);
+            color: #e0e0e0;
+        }
+
+        .dark-theme .term-word {
+            color: #667eea;
+        }
+
+        .dark-theme .term-definition {
+            color: #b0b0b0;
+        }
+
+        .dark-theme .term-example {
+            background: rgba(50, 50, 70, 0.8);
+            color: #a0a0a0;
+            border-left-color: #667eea;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-tab {
+            padding: 0.5rem 1rem;
+            background: none;
+            border: 2px solid transparent;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .nav-tab.active {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .nav-tab:hover:not(.active) {
+            border-color: #667eea;
+        }
+
+        .main-content {
+            padding: 2rem 0;
+        }
+
+        .section {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .translator-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .translator-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .translator-header h2 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .translator-header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .translator-container {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .input-box {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 1rem;
+        }
+
+        .input-label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #555;
+            display: block;
+        }
+
+        .input-area {
+            width: 100%;
+            min-height: 120px;
+            padding: 1rem;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1rem;
+            resize: vertical;
+            background: white;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-area:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .swap-button {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .swap-button:hover {
+            transform: rotate(180deg) scale(1.1);
+        }
+
+        .complexity-toggle {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .complexity-btn {
+            padding: 0.5rem 1rem;
+            border: 2px solid #667eea;
+            background: white;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .complexity-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .translate-btn {
+            display: block;
+            width: 200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .translate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .dictionary-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-bar {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            background: white;
+        }
+
+        .search-bar:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .category {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 1rem;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .category:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .category.active {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .terms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+
+        .term-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .term-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .term-word {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        .term-definition {
+            color: #666;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .term-example {
+            background: #f8f9fa;
+            padding: 0.8rem;
+            border-radius: 10px;
+            font-style: italic;
+            color: #555;
+            border-left: 4px solid #667eea;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+            @media (max-width: 768px) {
+                .translator-container {
+                    grid-template-columns: 1fr;
+                    gap: 1rem;
+                }
+                
+                .swap-button {
+                    transform: rotate(90deg);
+                    margin: 0.5rem 0;
+                }
+                
+                .complexity-toggle {
+                    flex-direction: column;
+                    align-items: center;
+                }
+                
+                .header-content {
+                    flex-direction: column;
+                    gap: 1rem;
+                }
+                
+                .header-content > div:last-child {
+                    flex-direction: column;
+                    gap: 1rem;
+                }
+            }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">Gen Z Dictionary 📖</div>
+                <div style="display: flex; align-items: center; gap: 2rem;">
+                    <div class="nav-tabs">
+                        <button class="nav-tab active" onclick="showSection('translator')">Translator</button>
+                        <button class="nav-tab" onclick="showSection('dictionary')">Dictionary</button>
+                    </div>
+                    <div class="theme-toggle">
+                        <span class="theme-icon">☀️</span>
+                        <div class="theme-switch" onclick="toggleTheme()">
+                            <div class="theme-slider"></div>
+                        </div>
+                        <span class="theme-icon">🌙</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container main-content">
+        <!-- Translator Section -->
+        <div id="translator" class="section active">
+            <div class="translator-section">
+                <div class="translator-header">
+                    <h2>Gen Z Translator</h2>
+                    <p>Translate between Gen Z language and regular English</p>
+                </div>
+                
+                <div class="translator-container">
+                    <div class="input-box">
+                        <label class="input-label" id="leftLabel">Regular English</label>
+                        <textarea 
+                            class="input-area" 
+                            id="leftInput" 
+                            placeholder="Type your text here..."
+                        ></textarea>
+                    </div>
+                    
+                    <button class="swap-button" onclick="swapTranslation()" title="Swap languages">
+                        ⇄
+                    </button>
+                    
+                    <div class="input-box">
+                        <label class="input-label" id="rightLabel">Gen Z Language</label>
+                        <textarea 
+                            class="input-area" 
+                            id="rightInput" 
+                            placeholder="Translation will appear here..."
+                            readonly
+                        ></textarea>
+                    </div>
+                </div>
+                
+                <div class="complexity-toggle">
+                    <button class="complexity-btn active" onclick="setComplexity('simple')">Simple</button>
+                    <button class="complexity-btn" onclick="setComplexity('complex')">Complex</button>
+                </div>
+                
+                <button class="translate-btn" onclick="translateText()">Translate</button>
+            </div>
+        </div>
+
+        <!-- Dictionary Section -->
+        <div id="dictionary" class="section">
+            <div class="dictionary-section">
+                <h2 style="text-align: center; margin-bottom: 2rem; font-size: 2rem;">Gen Z Dictionary</h2>
+                
+                <input 
+                    type="text" 
+                    class="search-bar" 
+                    placeholder="Search for a term..." 
+                    onkeyup="searchTerms(this.value)"
+                >
+                
+                <div class="categories">
+                    <div class="category active" onclick="filterCategory('all')">All Terms</div>
+                    <div class="category" onclick="filterCategory('emotions')">Emotions</div>
+                    <div class="category" onclick="filterCategory('people')">People</div>
+                    <div class="category" onclick="filterCategory('actions')">Actions</div>
+                    <div class="category" onclick="filterCategory('internet')">Internet</div>
+                </div>
+                
+                <div class="terms-grid" id="termsGrid">
+                    <!-- Terms will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Global state
+        let currentDirection = 'english-to-genz'; // 'english-to-genz' or 'genz-to-english'
+        let currentComplexity = 'simple';
+        let currentCategory = 'all';
+        let isDarkTheme = false;
+
+        // Toggle theme
+        function toggleTheme() {
+            isDarkTheme = !isDarkTheme;
+            const body = document.body;
+            const themeSwitch = document.querySelector('.theme-switch');
+            
+            if (isDarkTheme) {
+                body.classList.add('dark-theme');
+                themeSwitch.classList.add('dark');
+            } else {
+                body.classList.remove('dark-theme');
+                themeSwitch.classList.remove('dark');
+            }
+        }
+
+        // Terms database
+        const terms = {
+            // Emotions/Reactions
+            'slay': { category: 'emotions', definition: 'To do something exceptionally well or look amazing', example: 'You absolutely slayed that presentation!' },
+            'periodt': { category: 'emotions', definition: 'Period but with emphasis - end of discussion', example: 'That movie was terrible, periodt.' },
+            'no cap': { category: 'emotions', definition: 'No lie, being serious/truthful', example: 'This pizza is amazing, no cap.' },
+            'cap': { category: 'emotions', definition: 'A lie or something false', example: 'You got an A+ without studying? That\'s cap.' },
+            'bet': { category: 'emotions', definition: 'Agreement, for sure, sounds good', example: 'Want to hang out later? Bet!' },
+            'facts': { category: 'emotions', definition: 'That\'s true, I agree completely', example: 'This weather is awful. Facts.' },
+            'mood': { category: 'emotions', definition: 'Relatable feeling or vibe', example: 'Not wanting to get out of bed is such a mood.' },
+            'lowkey': { category: 'emotions', definition: 'Somewhat, kind of, secretly', example: 'I\'m lowkey excited about this.' },
+            'highkey': { category: 'emotions', definition: 'Very, openly, definitely', example: 'I\'m highkey obsessed with this song.' },
+            'mid': { category: 'emotions', definition: 'Average, mediocre, not great', example: 'That movie was pretty mid.' },
+            'bussin': { category: 'emotions', definition: 'Really good, excellent (usually food)', example: 'This burger is bussin!' },
+            'fire': { category: 'emotions', definition: 'Excellent, amazing, hot', example: 'Your outfit is fire!' },
+            'slaps': { category: 'emotions', definition: 'Really good (usually music)', example: 'This song absolutely slaps.' },
+            'hits different': { category: 'emotions', definition: 'Feels special or unique', example: 'Coffee at 6am just hits different.' },
+            'it\'s giving': { category: 'emotions', definition: 'It has the vibe of, it reminds me of', example: 'This outfit is giving main character energy.' },
+            
+            // People/Personality
+            'sigma': { category: 'people', definition: 'Independent, self-reliant person (often used ironically)', example: 'He\'s such a sigma male.' },
+            'alpha': { category: 'people', definition: 'Dominant, confident leader type', example: 'She has serious alpha energy.' },
+            'beta': { category: 'people', definition: 'Follower, less confident person', example: 'Don\'t be such a beta.' },
+            'rizz': { category: 'people', definition: 'Charisma, especially in dating/flirting', example: 'He\'s got serious rizz.' },
+            'npc': { category: 'people', definition: 'Someone who seems robotic or follows crowds', example: 'She\'s acting like an NPC.' },
+            'main character': { category: 'people', definition: 'Someone who lives confidently and prioritizes themselves', example: 'I\'m having my main character moment.' },
+            'pick me': { category: 'people', definition: 'Someone who seeks attention by putting down others', example: 'She\'s being such a pick me girl.' },
+            'basic': { category: 'people', definition: 'Following mainstream trends without originality', example: 'Pumpkin spice lattes are so basic.' },
+            'sus': { category: 'people', definition: 'Suspicious, questionable', example: 'That excuse sounds sus.' },
+            'valid': { category: 'people', definition: 'Legitimate, reasonable, acceptable', example: 'Your feelings are totally valid.' },
+            'iconic': { category: 'people', definition: 'Memorable, legendary, amazing', example: 'That comeback was iconic.' },
+            'legend': { category: 'people', definition: 'Someone awesome or who did something great', example: 'Thanks for covering my shift, you\'re a legend.' },
+            
+            // Actions/Situations
+            'touch grass': { category: 'actions', definition: 'Go outside, get off the internet, reconnect with reality', example: 'You need to touch grass instead of arguing online.' },
+            'ratio': { category: 'actions', definition: 'When a reply gets more likes than the original post', example: 'That reply got a massive ratio.' },
+            'ghost': { category: 'actions', definition: 'Suddenly stop responding to someone', example: 'He totally ghosted me after our date.' },
+            'flex': { category: 'actions', definition: 'Show off, boast about something', example: 'Stop flexing your new car.' },
+            'simp': { category: 'actions', definition: 'Give excessive attention to someone hoping for romance', example: 'He\'s simping for her hard.' },
+            'stan': { category: 'actions', definition: 'Be a huge fan of someone/something', example: 'I stan this artist so much.' },
+            'cancel': { category: 'actions', definition: 'Boycott or call out someone for problematic behavior', example: 'Twitter is trying to cancel that celebrity.' },
+            'clap back': { category: 'actions', definition: 'Respond strongly to criticism', example: 'Her clap back was perfect.' },
+            'spill tea': { category: 'actions', definition: 'Share gossip or secrets', example: 'Girl, spill the tea about what happened.' },
+            'left no crumbs': { category: 'actions', definition: 'Did something perfectly, left nothing behind', example: 'She left no crumbs with that performance.' },
+            
+            // Internet/Meme Culture
+            'brainrot': { category: 'internet', definition: 'Mindless, addictive content that melts your brain', example: 'I\'ve been watching brainrot videos all day.' },
+            'skibidi': { category: 'internet', definition: 'Nonsense word from viral videos, often used ironically', example: 'That\'s so skibidi of you.' },
+            'ohio': { category: 'internet', definition: 'Weird, chaotic, strange', example: 'This situation is so Ohio.' },
+            'gyatt': { category: 'internet', definition: 'Expression of surprise or amazement', example: 'Gyatt! That scared me.' },
+            'based': { category: 'internet', definition: 'Authentic, true to oneself, admirable', example: 'That opinion is so based.' },
+            'cringe': { category: 'internet', definition: 'Embarrassing, uncomfortable to watch', example: 'That video was pure cringe.' },
+            'sending me': { category: 'internet', definition: 'Making me laugh uncontrollably', example: 'This meme is sending me.' },
+            'i\'m dead': { category: 'internet', definition: 'That\'s hilarious, I\'m laughing so hard', example: 'Your joke has me dead.' },
+            'not me': { category: 'internet', definition: 'Used to describe doing something you shouldn\'t', example: 'Not me eating ice cream for breakfast.' },
+            'the way i': { category: 'internet', definition: 'Used to express strong reaction', example: 'The way I screamed when I saw that spider.' }
+        };
+
+        // Translation mappings
+        const translations = {
+            simple: {
+                'english-to-genz': {
+                    'really good': 'bussin',
+                    'very good': 'fire',
+                    'excellent': 'slay',
+                    'amazing': 'fire',
+                    'awesome': 'fire',
+                    'no lie': 'no cap',
+                    'for real': 'fr',
+                    'i agree': 'facts',
+                    'that\'s true': 'facts',
+                    'suspicious': 'sus',
+                    'weird': 'ohio',
+                    'strange': 'ohio',
+                    'average': 'mid',
+                    'mediocre': 'mid',
+                    'charisma': 'rizz',
+                    'confident': 'sigma',
+                    'show off': 'flex',
+                    'lying': 'cap',
+                    'definitely': 'highkey',
+                    'somewhat': 'lowkey',
+                    'relatable': 'mood',
+                    'legendary': 'iconic'
+                },
+                'genz-to-english': {
+                    'bussin': 'really good',
+                    'fire': 'amazing',
+                    'slay': 'excellent',
+                    'no cap': 'no lie',
+                    'fr': 'for real',
+                    'facts': 'that\'s true',
+                    'sus': 'suspicious',
+                    'ohio': 'weird',
+                    'mid': 'average',
+                    'rizz': 'charisma',
+                    'sigma': 'confident',
+                    'flex': 'show off',
+                    'cap': 'lying',
+                    'highkey': 'definitely',
+                    'lowkey': 'somewhat',
+                    'mood': 'relatable',
+                    'iconic': 'legendary',
+                    'periodt': 'period',
+                    'bet': 'okay',
+                    'valid': 'reasonable',
+                    'based': 'authentic',
+                    'cringe': 'embarrassing',
+                    'gyatt': 'wow',
+                    'brainrot': 'mindless content',
+                    'skibidi': 'nonsense',
+                    'simp': 'overly devoted',
+                    'stan': 'big fan',
+                    'ghost': 'ignore',
+                    'ratio': 'got more likes'
+                }
+            },
+            complex: {
+                'english-to-genz': {
+                    'that was really good': 'that was absolutely bussin, no cap',
+                    'i love this song': 'this song slaps, it\'s giving main character energy',
+                    'she looks amazing': 'she\'s serving looks, periodt',
+                    'that\'s suspicious': 'that\'s sus, lowkey giving red flags',
+                    'i agree with you': 'facts, you\'re spitting truth',
+                    'that was embarrassing': 'that was peak cringe, i\'m dead',
+                    'this is weird': 'this is so ohio, it\'s giving chaos energy',
+                    'that\'s average': 'that\'s mid, not gonna lie',
+                    'he\'s very confident': 'he\'s got that sigma energy, no cap',
+                    'stop showing off': 'stop flexing, we get it',
+                    'that\'s definitely true': 'that\'s highkey facts, periodt',
+                    'i\'m somewhat tired': 'i\'m lowkey exhausted, it\'s giving sleepy vibes'
+                },
+                'genz-to-english': {
+                    'that\'s bussin no cap': 'that\'s really good, i\'m being honest',
+                    'this song slaps fr': 'this song is really great, for real',
+                    'she\'s serving looks periodt': 'she looks amazing, end of discussion',
+                    'that\'s sus lowkey': 'that\'s somewhat suspicious',
+                    'facts you\'re spitting': 'that\'s true, you\'re speaking facts',
+                    'that was cringe i\'m dead': 'that was embarrassing, i\'m laughing so hard',
+                    'this is ohio energy': 'this is weird and chaotic',
+                    'that\'s mid ngl': 'that\'s average, not gonna lie',
+                    'sigma energy no cap': 'confident energy, no lie',
+                    'stop flexing we get it': 'stop showing off, we understand',
+                    'highkey facts periodt': 'definitely true, end of discussion',
+                    'lowkey exhausted vibes': 'somewhat tired feelings'
+                }
+            }
+        };
+
+        // Initialize the page
+        function initializePage() {
+            populateTerms();
+            showSection('translator');
+        }
+
+        // Show section
+        function showSection(sectionName) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            
+            document.getElementById(sectionName).classList.add('active');
+            document.querySelector(`[onclick="showSection('${sectionName}')"]`).classList.add('active');
+        }
+
+        // Swap translation direction
+        function swapTranslation() {
+            const leftInput = document.getElementById('leftInput');
+            const rightInput = document.getElementById('rightInput');
+            const leftLabel = document.getElementById('leftLabel');
+            const rightLabel = document.getElementById('rightLabel');
+            
+            // Swap values
+            const temp = leftInput.value;
+            leftInput.value = rightInput.value;
+            rightInput.value = temp;
+            
+            // Swap labels and direction
+            if (currentDirection === 'english-to-genz') {
+                leftLabel.textContent = 'Gen Z Language';
+                rightLabel.textContent = 'Regular English';
+                leftInput.placeholder = 'Type Gen Z text here...';
+                rightInput.placeholder = 'Translation will appear here...';
+                currentDirection = 'genz-to-english';
+            } else {
+                leftLabel.textContent = 'Regular English';
+                rightLabel.textContent = 'Gen Z Language';
+                leftInput.placeholder = 'Type your text here...';
+                rightInput.placeholder = 'Translation will appear here...';
+                currentDirection = 'english-to-genz';
+            }
+        }
+
+        // Set complexity
+        function setComplexity(complexity) {
+            currentComplexity = complexity;
+            document.querySelectorAll('.complexity-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`[onclick="setComplexity('${complexity}')"]`).classList.add('active');
+        }
+
+        // Translate text
+        function translateText() {
+            const inputText = document.getElementById('leftInput').value.toLowerCase().trim();
+            const outputArea = document.getElementById('rightInput');
+            
+            if (!inputText) {
+                outputArea.value = '';
+                return;
+            }
+            
+            const translationMap = translations[currentComplexity][currentDirection];
+            let translatedText = inputText;
+            
+            // Apply translations
+            for (const [key, value] of Object.entries(translationMap)) {
+                const regex = new RegExp(key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+                translatedText = translatedText.replace(regex, value);
+            }
+            
+            outputArea.value = translatedText;
+        }
+
+        // Populate terms in dictionary
+        function populateTerms() {
+            const termsGrid = document.getElementById('termsGrid');
+            termsGrid.innerHTML = '';
+            
+            Object.entries(terms).forEach(([term, data]) => {
+                if (currentCategory === 'all' || data.category === currentCategory) {
+                    const termCard = document.createElement('div');
+                    termCard.className = 'term-card';
+                    termCard.innerHTML = `
+                        <div class="term-word">${term}</div>
+                        <div class="term-definition">${data.definition}</div>
+                        <div class="term-example">"${data.example}"</div>
+                    `;
+                    termsGrid.appendChild(termCard);
+                }
+            });
+        }
+
+        // Filter by category
+        function filterCategory(category) {
+            currentCategory = category;
+            document.querySelectorAll('.category').forEach(c => c.classList.remove('active'));
+            document.querySelector(`[onclick="filterCategory('${category}')"]`).classList.add('active');
+            populateTerms();
+        }
+
+        // Search terms
+        function searchTerms(query) {
+            const termsGrid = document.getElementById('termsGrid');
+            termsGrid.innerHTML = '';
+            
+            Object.entries(terms).forEach(([term, data]) => {
+                if (term.toLowerCase().includes(query.toLowerCase()) || 
+                    data.definition.toLowerCase().includes(query.toLowerCase())) {
+                    const termCard = document.createElement('div');
+                    termCard.className = 'term-card';
+                    termCard.innerHTML = `
+                        <div class="term-word">${term}</div>
+                        <div class="term-definition">${data.definition}</div>
+                        <div class="term-example">"${data.example}"</div>
+                    `;
+                    termsGrid.appendChild(termCard);
+                }
+            });
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', initializePage);
+    </script>
+</body>
+</html>
